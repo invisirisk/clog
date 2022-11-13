@@ -47,6 +47,11 @@ func FromCtx(ctx context.Context) *CLog {
 	}
 }
 
+func WithClog(ctx context.Context, cl *CLog, logctx string) (context.Context, *CLog) {
+	cl = NewCLog(cl.rawctx + "/" + logctx)
+	return context.WithValue(ctx, ctxKey, cl), cl
+}
+
 func (c *CLog) Infof(format string, args ...interface{}) {
 	glog.InfoDepth(1, fmt.Sprintf(c.ctx+format, args...))
 }

@@ -13,7 +13,7 @@ type cLogCtxKey struct {
 
 var (
 	ctxKey = cLogCtxKey{"clog"}
-	defLog = newCLog("")
+	defLog = NewCLog("")
 )
 
 type CLog struct {
@@ -21,10 +21,13 @@ type CLog struct {
 	ctx    string
 }
 
-func newCLog(ctx string) *CLog {
+/*
+NewClog can be used when there is no context available.
+*/
+func NewCLog(logctx string) *CLog {
 	return &CLog{
-		rawctx: ctx,
-		ctx:    ctx + ": ",
+		rawctx: logctx,
+		ctx:    logctx + ": ",
 	}
 }
 
@@ -35,9 +38,9 @@ func WithCtx(ctx context.Context, logctx string) (context.Context, *CLog) {
 	var cl *CLog
 	v := ctx.Value(ctxKey)
 	if l, ok := v.(*CLog); ok {
-		cl = newCLog(l.rawctx + "/" + logctx)
+		cl = NewCLog(l.rawctx + "/" + logctx)
 	} else {
-		cl = newCLog(logctx)
+		cl = NewCLog(logctx)
 	}
 	return context.WithValue(ctx, ctxKey, cl), cl
 }
@@ -58,19 +61,23 @@ func FromCtx(ctx context.Context) *CLog {
 WithClog creates a new logger from existing clog.
 */
 func WithClog(ctx context.Context, cl *CLog, logctx string) (context.Context, *CLog) {
-	cl = newCLog(cl.rawctx + "/" + logctx)
+	cl = NewCLog(cl.rawctx + "/" + logctx)
 	return context.WithValue(ctx, ctxKey, cl), cl
 }
 
 /*
-Infof is similar to [github.com/golang/glog.Infof]
+Infof is similar to [glog.Infof]
+
+The log output will be prepended with logctx
 */
 func (c *CLog) Infof(format string, args ...interface{}) {
 	glog.InfoDepth(1, fmt.Sprintf(c.ctx+format, args...))
 }
 
 /*
-Errorf is similar to [github.com/golang/glog.Errorf]
+Errorf is similar to [glog.Errorf]
+
+The log output will be prepended with logctx
 */
 func (c *CLog) Errorf(format string, args ...interface{}) {
 	glog.ErrorDepth(1, fmt.Sprintf(c.ctx+format, args...))

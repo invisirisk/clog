@@ -2,7 +2,7 @@ module github.com/invisirisk/clog
 
 go 1.18
 
-require github.com/golang/glog v1.0.0
+require github.com/golang/glog v1.1.1
 
 require (
 	cloud.google.com/go v0.110.0 // indirect
